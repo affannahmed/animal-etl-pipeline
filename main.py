@@ -1,4 +1,5 @@
 import sys
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from src.client import AnimalAPIClient
 from src.transformation_logic import AnimalTransformer
 from src.loading_logic import AnimalLoader
@@ -9,6 +10,7 @@ def fetch_all_animals(client):
     
     all_animal_ids = []
     page = 1
+
     
     while True:
         try:
@@ -18,7 +20,6 @@ def fetch_all_animals(client):
             if not items:
                 break
             
-
             animal_ids = [item["id"] for item in items]
             all_animal_ids.extend(animal_ids)
             
@@ -38,22 +39,40 @@ def fetch_all_animals(client):
     return all_animal_ids
 
 
-def fetch_animal_details(client, animal_ids):
+def fetch_single_animal(client, animal_id):
+    try:
+        return client.get_animal_details(animal_id)
+    except Exception as e:
+        print(f"Error fetching animal {animal_id}: {e}")
+        raise
 
-    print(f"Fetching details for {len(animal_ids)} animals")
+
+def fetch_animal_details_parallel(client, animal_ids, max_workers=10):
+    print(f"Fetching details for {len(animal_ids)} animals (parallel mode with {max_workers} workers)")
     
     animals_details = []
+    completed = 0
     
-    for i, animal_id in enumerate(animal_ids, 1):
-        try:
-            details = client.get_animal_details(animal_id)
-            animals_details.append(details)
-            if i % 100 == 0 or i == len(animal_ids):
-                print(f"   Progress: {i}/{len(animal_ids)} animals fetched")
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+
+        future_to_id = {
+            executor.submit(fetch_single_animal, client, animal_id): animal_id 
+            for animal_id in animal_ids
+        }
+        
+        for future in as_completed(future_to_id):
+            animal_id = future_to_id[future]
+            try:
+                result = future.result()
+                animals_details.append(result)
+                completed += 1
                 
-        except Exception as e:
-            print(f"Error fetching animal {animal_id}: {e}")
-            raise
+                if completed % 100 == 0 or completed == len(animal_ids):
+                    print(f"   Progress: {completed}/{len(animal_ids)} animals fetched")
+                    
+            except Exception as e:
+                print(f"Failed to fetch animal {animal_id}: {e}")
+                raise
     
     print(f"Fetched details for {len(animals_details)} animals\n")
     return animals_details
@@ -68,7 +87,7 @@ def main():
 
         animal_ids = fetch_all_animals(client)
 
-        animals_details = fetch_animal_details(client, animal_ids)
+        animals_details = fetch_animal_details_parallel(client, animal_ids, max_workers=10)
 
         print("Transforming animal data...")
         transformed_animals = AnimalTransformer.transform_batch(animals_details)
