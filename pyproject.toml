@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "animal-etl-pipeline"
+version = "1.0.0"
+description = "ETL pipeline for processing animal data with retry logic"
+readme = "README.md"
+requires-python = ">=3.8"
+authors = [
+    {name = "Affan Ahmed", email = "affanahmed395@gmail.com"}
+]
+
+dependencies = [
+    "requests>=2.31.0",
+    "tenacity>=8.2.3",
+    "python-dateutil>=2.8.2",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "black>=23.0.0",
+    "ruff>=0.1.0",
+]
+
+[tool.black]
+line-length = 100
+target-version = ['py38']
+
+[tool.ruff]
+line-length = 100
+select = ["E", "F", "I"]
+ignore = ["E501"]
