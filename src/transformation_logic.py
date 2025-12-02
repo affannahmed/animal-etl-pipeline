@@ -1,19 +1,18 @@
 from datetime import datetime
+from typing import Dict, Any, List
 from dateutil import parser
 
 
 class AnimalTransformer:
-
     @staticmethod
-    def transform_animal(animal_data):
+    def transform_animal(animal_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Transform a single animal's data."""
         transformed = animal_data.copy()
 
         if "friends" in transformed and transformed["friends"]:
             if isinstance(transformed["friends"], str):
                 transformed["friends"] = [
-                    friend.strip() 
-                    for friend in transformed["friends"].split(",") 
-                    if friend.strip()
+                    friend.strip() for friend in transformed["friends"].split(",") if friend.strip()
                 ]
         else:
             transformed["friends"] = []
@@ -29,9 +28,10 @@ class AnimalTransformer:
             except (ValueError, TypeError) as e:
                 print(f"Warning: Could not parse born_at '{transformed['born_at']}': {e}")
                 transformed["born_at"] = None
-        
+
         return transformed
-    
+
     @staticmethod
-    def transform_batch(animals_list):
+    def transform_batch(animals_list: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """Transform a batch of animals."""
         return [AnimalTransformer.transform_animal(animal) for animal in animals_list]
