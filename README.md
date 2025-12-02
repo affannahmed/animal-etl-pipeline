@@ -17,7 +17,7 @@ The API randomly throws errors (500, 502, 503, 504) and pauses for 5-15 seconds 
 ## Setup
 ```bash
 # Clone and setup
-git clone <your-repo>
+git clone https://github.com/affannahmed/animal-etl-pipeline
 cd animal-etl-pipeline
 python3 -m venv venv
 source venv/bin/activate
@@ -56,5 +56,17 @@ Fetched page 2/585 (10 animals)
 
 - `requests` - HTTP
 - `tenacity` - Retry logic
+<<<<<<< Updated upstream
 
 - `python-dateutil` - Date parsing
+=======
+- `python-dateutil` - Date parsing
+
+## Edge Cases Handled
+
+The API returns `born_at` in multiple formats:
+- Date strings (e.g., "2023-01-15 10:30:00")
+- Unix timestamps as integers (e.g., 1248160330502 - milliseconds since epoch)
+
+The transformer handles both formats gracefully and converts them to ISO8601.
+>>>>>>> Stashed changes
