@@ -45,10 +45,16 @@ python main.py
 Takes about 10-20 minutes to process all ~5,850 animals. You'll see it hit server errors occasionally - that's expected and the retry logic handles it.
 
 # Expected output :
+Starting Animal ETL Pipeline
 
+==================================================
+Fetching all animals
+Fetched page 1/585 (10 animals)
+Fetched page 2/585 (10 animals)
 
 ## Dependencies
 
 - `requests` - HTTP
 - `tenacity` - Retry logic
+
 - `python-dateutil` - Date parsing
